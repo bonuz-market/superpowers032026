@@ -216,9 +216,13 @@ Based on the existing PRD and product design:
 - Complex AMM band math (adds significant complexity)
 - Dependency on Curve pool oracles (BRIXL uses Chainlink)
 
+**Yield Basis (by Curve founder, Sept 2025):** A companion protocol that eliminates impermanent loss for BTC liquidity provision using 2x leveraged liquidity. Pairs BTC with crvUSD, received $60M crvUSD credit line from Curve DAO, had $130M+ in BTC deposits by Dec 2025. Demonstrates that Curve's architecture is being actively adapted for Bitcoin yield. Worth studying for BRIXL Phase 3 yield features.
+
 **Verdict:** The soft liquidation concept is brilliant but adds too much complexity for a v1. The LLAMMA AMM math is non-trivial and requires deep expertise. **Consider for BRIXL v2** — start with simple hard liquidation (like Liquity) for v1.
 
-**Source:** [Curve Lending Docs](https://docs.curve.finance/lending/overview/) | [MixBytes LLAMMA Analysis](https://mixbytes.io/blog/modern-defi-lending-protocols-how-its-made-curve-llamalend) | [Llama Risk Primer](https://www.llamarisk.com/research/curve-lending)
+**License Note:** Curve DAO contracts are MIT-licensed, but Curve recently (March 2026) took enforcement action against PancakeSwap for code copying. Individual repos may carry different licenses — always verify before forking. The LLAMMA/crvUSD contracts need individual license verification.
+
+**Source:** [Curve Lending Docs](https://docs.curve.finance/lending/overview/) | [MixBytes LLAMMA Analysis](https://mixbytes.io/blog/modern-defi-lending-protocols-how-its-made-curve-llamalend) | [Llama Risk Primer](https://www.llamarisk.com/research/curve-lending) | [Yield Basis](https://blockworks.co/news/michael-egorov-yield-basis-protocol)
 
 ---
 
