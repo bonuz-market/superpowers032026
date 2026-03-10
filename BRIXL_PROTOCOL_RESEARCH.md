@@ -169,7 +169,9 @@ Based on the existing PRD and product design:
 - Add on-chain loan registry on Base for transparency
 - Automate margin calls using Chainlink price feeds
 
-**Source:** [Firefish Protocol Docs](https://docs.firefish.io/firefish-protocol) | [Firefish.io](https://firefish.io/) | Code at protocol.firefish.io
+**License Warning:** Firefish's code ([GitHub](https://github.com/Firefish-io/firefish-protocol)) is **source-available but NOT open-source**. Their proprietary license explicitly prohibits forking to build competing products, commercial use, modification, and redistribution. **We cannot fork their code — we can only study their architecture and independently implement similar patterns (multisig escrow, PSBT, MuSig2).** These are standard Bitcoin cryptographic primitives, not patented inventions.
+
+**Source:** [Firefish Protocol Docs](https://docs.firefish.io/firefish-protocol) | [Firefish.io](https://firefish.io/) | [Firefish GitHub](https://github.com/Firefish-io/firefish-protocol)
 
 ---
 
