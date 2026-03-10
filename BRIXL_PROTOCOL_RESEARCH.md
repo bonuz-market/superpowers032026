@@ -702,6 +702,51 @@ contract BrixlPriceFeed {
 
 BRIXL targets the sweet spot: **more decentralized than Firefish** (adding Stability Pool + on-chain logic), **simpler than Aave/Curve** (fixed rates, no governance, single collateral), and **more Bitcoin-native than EVM lending** (BTC stays on Bitcoin L1).
 
+### 8.4 Alternative Implementation Paths Considered
+
+Four distinct paths were evaluated for BRIXL's implementation. The recommended path (A) was chosen for its balance of speed, simplicity, and Bitcoin-native custody.
+
+| Path | Approach | Speed | Decentralization | Simplicity | Chosen? |
+|------|----------|-------|-------------------|------------|---------|
+| **A. EVM on Base + BTC Escrow** | Liquity-inspired contracts on Base L2, Firefish-inspired BTC custody on Bitcoin L1 | Fast | Medium (v1) → High (v2) | High | **YES** |
+| **B. Bitcoin-Native (DLCs)** | P2P lending via Discreet Log Contracts, each loan is a 2-of-2 multisig with oracle | Slow | Very High | Medium | No (v2/v3) |
+| **C. Stacks + Clarity** | Build on Stacks using sBTC, Clarity smart contracts | Medium | High | Medium | No |
+| **D. Babylon LST Wrapper** | Liquid staking token on top of Babylon (like Lombard's LBTC) | Fast | Medium | High | No (staking-only, not lending) |
+
+**Why Path A wins:**
+- Base L2 has the most mature EVM tooling — Liquity can be forked in days
+- BTC escrow on Bitcoin L1 gives genuine non-custodial custody
+- Already aligned with BRIXL's existing tech stack (Next.js + Base + Solidity)
+- The "proof crosses, not BTC" bridge model avoids bridge risk
+- Path B (DLCs) and C (Stacks) are fallback options if Path A proves insufficient
+
+### 8.5 Additional Protocols Studied
+
+| Protocol | What it is | Key Takeaway for BRIXL |
+|----------|-----------|----------------------|
+| **SolvBTC** | Modular BTC staking via Staking Abstraction Layer (SAL), cross-chain via Chainlink CCIP | Too complex for v1 — many moving parts (guardians, yield distributors, multi-chain) |
+| **BounceBit** | CeDeFi L1 with dual-token PoS, BTC held by regulated custodians (Mainnet Digital) | Wrong model — centralized custody contradicts BRIXL's non-custodial thesis |
+| **ALEX Lab** | DEX + AMM + lending on Stacks (Clarity), suffered smart contract hack June 2025 | Validates Stacks as viable but highlights audit risks; vault access control failure |
+| **Lygos Finance** | Non-custodial BTC lending via DLCs (acquired Atomic Finance), supports up to $100M | Proves DLC-based lending can scale; worth watching for BRIXL v2/v3 |
+| **Cadena Bitcoin** | DLC-powered lending — no fund pooling, each loan is isolated cryptographic agreement | Eliminates platform insolvency risk but limits capital efficiency |
+| **Yield Basis** | Curve founder's BTC yield protocol, $130M+ deposits, eliminates impermanent loss | Validates Curve mechanics for Bitcoin; study for BRIXL Phase 3 yield |
+
+### 8.6 DLC vs. EVM: Full Comparison
+
+| Dimension | DLC (Bitcoin-Native) | EVM (Base L2) |
+|-----------|---------------------|---------------|
+| **Custody** | Non-custodial, user retains keys | Depends on bridge/wrapping model |
+| **Privacy** | Only final settlement visible on-chain | Full contract state public |
+| **Build complexity** | High (Bitcoin Script, adaptor sigs) | Lower (mature tooling, Solidity, existing forks) |
+| **Forkability** | Low — deep cryptographic expertise | High — Liquity/Compound forkable in days |
+| **Lending model** | P2P, each loan isolated | Pool-based, shared liquidity |
+| **Oracle trust** | Oracle attests but never holds funds | Oracle feeds into smart contract logic |
+| **Liquidation** | Oracle-triggered via adaptor signatures | Automated via smart contract + keeper bots |
+| **Smart contract risk** | Minimal (no complex VM) | Significant (requires audits) |
+| **Ecosystem maturity** | Early (Liquidium, Cadena, Lava, Lygos) | Mature (Sovryn, Aave forks, Compound forks) |
+
+**Verdict:** EVM approach for v1 (faster, proven), DLC approach for v2/v3 (more Bitcoin-native, higher decentralization).
+
 ---
 
 ## Appendix A: Key Source Code References
