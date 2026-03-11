@@ -256,14 +256,22 @@ Additionally:
 > "A lifestyle wallet for passes, rewards, memberships and identity — self-custodial under the hood."
 
 **Technical stack:**
-- **Expo SDK 55** + **React Native 0.83** (New Architecture)
-- **TypeScript** with strict mode
+- **Expo SDK 55** + **React Native 0.83** (New Architecture) — version 3.12.77
+- **TypeScript 5.8** with strict mode
 - **Expo Router** (file-based routing with route groups)
-- **Zustand** for state management (selector hooks pattern to prevent re-renders)
+- **Zustand 5** for state management (selector hooks pattern to prevent re-renders)
 - **Viem 2.38 + Wagmi 2.19** for blockchain interaction
-- **TanStack React Query** for server state
-- **NativeWind** (Tailwind CSS for React Native)
+- **Biconomy Account SDK 4.5** for smart accounts (ERC-4337)
+- **Web3Auth React Native SDK 8.1** for social login + MPC keys
+- **WalletConnect 2.23 + ReOwn AppKit** for dApp connections
+- **Apollo Client 4.1** for GraphQL (Social ID subgraphs)
+- **TanStack React Query 5.90** for server state
+- **NativeWind 4.2** (Tailwind CSS for React Native)
+- **Reanimated 4.2** for GPU-accelerated animations
+- **Sentry** (error tracking) + **PostHog** (analytics) + **AppsFlyer** (attribution)
+- **MMKV** for fast local persistence, **expo-secure-store** for encrypted secrets
 - **Vitest** for unit/integration tests, **Maestro** for E2E
+- **Service Container** pattern with dependency injection for backend services
 
 **App sections (route groups):**
 
@@ -280,29 +288,35 @@ Additionally:
 **Key features:**
 - **Wallet-first onboarding:** opens as a wallet immediately
 - **Onboarding:** email/social login (Google, Apple) → self-custodial account created behind the scenes via Web3Auth MPC + Biconomy smart accounts
+- **Wallet types:** Main EVM wallet (Web3Auth derived), Smart Wallet (Biconomy AA with gasless), Seed Phrase wallets (HD derivation per chain), Connected wallets (WalletConnect), Watch-only
 - **Wallet:** hold, send, receive, swap (multi-chain via LI.FI, 1inch), buy/sell via Mercuryo fiat on-ramp
 - **44+ supported chains** including Ethereum, Polygon, BSC, Base, Arbitrum, Solana, Bitcoin, Avalanche, Optimism, Linea, Abstract, ApeChain, Berachain, Blast, Celo, Degen, Fantom, Gnosis, Lens, Mantle, Monad, Scroll, Sonic, Unichain, World Chain, zkSync, Zora, MegaETH, and more
-- **Built-in dApp browser** for connecting to any DeFi protocol
+- **Built-in dApp browser** with WalletConnect session management for any DeFi protocol
 - **Discover section** for events, apps, partners, digital world, real world
 - **Manage DNFTs:** passes, vouchers, memberships, tickets
 - **QR scanning** for check-ins, redemptions, and WalletConnect
-- **Security:** Hacken 10/10 audit, MPC/TSS key management (no seed phrases by default), biometric auth, sending PIN, auto-lock, MFA
-- **RPC resilience:** Circuit breaker pattern with fallback for all blockchain reads
-- **Bitcoin support:** Native BTC via dedicated BitcoinService
+- **AI / Points mining** with time-based efficiency, levels, and leaderboards
+- **Security:** Hacken 10/10 audit, MPC/TSS key management (no seed phrases by default), biometric auth (Face ID/Touch ID), sending PIN, auto-lock, MFA, security audit log
+- **RPC resilience:** Circuit breaker pattern with multi-RPC fallback for all blockchain reads
+- **Bitcoin support:** Native BTC via dedicated BitcoinService (BIP32/BIP39/BIP44)
 - **Solana support:** Native SPL tokens with rent-exempt minimum handling
 - **Apple Wallet:** Users with Bonuz ID can add it as an Apple Wallet pass (via PassKit service)
 - **Cross-chain swaps** with price impact and deadline management
 - **Transaction simulation** before execution for safety
+- **Offline queue:** Failed transactions persisted and retried when network restored
+- **Wallet settings sync:** Order, visibility, custom names synced across devices via backend
 
 **Optional Bonuz ID:**
 - Bonuz ID is optional and can be activated later
 - Keeps users more anonymous by default (not everyone wants a public handle)
 - When activated: on-chain social profile + biolink-style page; supports tipping flows where enabled
 
-**Authentication features:**
-- Web3Auth wallet creation (MPC, social login)
-- Seed phrase wallet import (legacy support)
-- WalletConnect v2 integration for external dApps
+**Authentication flow:**
+- Challenge-based: backend issues challenge → user signs with Web3Auth private key → JWT issued
+- Token storage in expo-secure-store (iOS Keychain / Android Keystore)
+- Auto-refresh 3 min before expiry with exponential backoff
+- v1→v2 token migration handled via `preCaptureOldToken` (must be first import in _layout.tsx)
+- Supports: Web3Auth wallet creation (MPC, social login), seed phrase import (legacy), WalletConnect v2
 
 **Language support (24 locales):**
 English, Spanish, Arabic, Hindi, Urdu, Indonesian, German, Polish, Portuguese, Malay, Filipino, Turkish, Korean, Russian, Thai, Vietnamese, French, Japanese, Farsi, Swahili, and more.
