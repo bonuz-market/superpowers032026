@@ -20,16 +20,16 @@
 
 ## 1. Executive Summary
 
-BRIXL is a Bitcoin-backed lending protocol where users deposit BTC as collateral and receive stablecoins (USDC/USDT) or fiat. The current implementation is a Next.js landing page with a loan calculator, deployed on Base L2. The goal is to evolve this into a **decentralized protocol** — one that minimizes trust assumptions, is simple to build and audit, and can operate without centralized intermediaries.
+BRIXL is a Bitcoin-backed lending protocol where users deposit BTC as collateral and receive stablecoins (USDC/USDT) or fiat. The current implementation is a Next.js landing page with a loan calculator. The goal is to evolve this into a **decentralized protocol** — one that minimizes trust assumptions, is simple to build and audit, and can operate without centralized intermediaries.
 
 After analyzing 8+ protocols across the Bitcoin DeFi landscape, this research recommends a **hybrid architecture** that combines:
 
 - **Liquity V1's simplicity** (Trove-based CDP model, Stability Pool, algorithmic fees) as the smart contract backbone
 - **Firefish's non-custodial Bitcoin collateral model** (3-of-3 multisig escrow on Bitcoin L1) for true BTC custody
 - **Babylon's staking primitives** (optional yield layer for locked BTC)
-- **Deployed on Base L2** (as already planned) for low-cost EVM operations
+- **Deployed on Ethereum L1** for maximum security, liquidity, and composability
 
-The result: a protocol where BTC stays on Bitcoin (non-custodial), loan logic runs on Base (cheap + composable), and the system is governance-minimal and immutable.
+The result: a protocol where BTC stays on Bitcoin (non-custodial), loan logic runs on Ethereum L1 (maximum security + composable), and the system is governance-minimal and immutable.
 
 ---
 
@@ -52,7 +52,7 @@ The result: a protocol where BTC stays on Bitcoin (non-custodial), loan logic ru
 Based on the existing PRD and product design:
 
 - **Non-custodial BTC collateral** — no rehypothecation, user retains keys
-- **Stablecoin disbursement** — USDC on Base (already planned)
+- **Stablecoin disbursement** — USDC on Ethereum
 - **Three LTV tiers** — SAVER (30%), STANDARD (50%), FLEX (65%)
 - **Liquidation engine** — margin calls at 65/72/77%, liquidation at 80%
 - **Simplicity** — minimal governance, auditable, forkable
@@ -166,7 +166,7 @@ Based on the existing PRD and product design:
 **What to change:**
 - Decentralize the oracles (currently centralized to Firefish)
 - Replace P2P matching with pooled lending (Stability Pool / USDC pool)
-- Add on-chain loan registry on Base for transparency
+- Add on-chain loan registry on Ethereum for transparency
 - Automate margin calls using Chainlink price feeds
 
 **License Warning:** Firefish's code ([GitHub](https://github.com/Firefish-io/firefish-protocol)) is **source-available but NOT open-source**. Their proprietary license explicitly prohibits forking to build competing products, commercial use, modification, and redistribution. **We cannot fork their code — we can only study their architecture and independently implement similar patterns (multisig escrow, PSBT, MuSig2).** These are standard Bitcoin cryptographic primitives, not patented inventions.
@@ -245,7 +245,7 @@ Based on the existing PRD and product design:
 - Open-source codebase with 4 security audits (Trail of Bits x2, Coinspect, Chainsulting)
 
 **What to change:**
-- Deploy on Base instead of RSK (better ecosystem, more composable)
+- Deploy on Ethereum L1 (strongest security, deepest liquidity, most composable)
 - Use actual BTC custody (Firefish model) instead of sidechain BTC
 - USDC instead of minting a new stablecoin
 
@@ -368,7 +368,7 @@ Based on the existing PRD and product design:
 │  └──────────────┬────────────────────────┘                      │
 │                 │ Proof of lock                                   │
 │                 ▼                                                 │
-│  LAYER 2: BASE (Loan Logic + Liquidity)                         │
+│  ETHEREUM L1 (Loan Logic + Liquidity)                           │
 │  ┌───────────────────────────────────────┐                      │
 │  │                                       │                      │
 │  │  BrixlVault.sol (Liquity-inspired)    │                      │
@@ -400,11 +400,11 @@ Based on the existing PRD and product design:
 │  ┌───────────────────────────────────────┐                      │
 │  │  BTC Lock Verifier                    │                      │
 │  │  • Verifies BTC escrow on Bitcoin     │                      │
-│  │  • Relayer submits proof to Base      │                      │
-│  │  • Unlocks USDC lending on Base       │                      │
+│  │  • Relayer submits proof to Ethereum   │                      │
+│  │  • Unlocks USDC lending on Ethereum   │                      │
 │  │  • Options:                           │                      │
 │  │    a) Simple relayer + multisig       │                      │
-│  │    b) Bitcoin light client on Base    │                      │
+│  │    b) Bitcoin light client on Ethereum│                      │
 │  │    c) tBTC-style threshold signing    │                      │
 │  └───────────────────────────────────────┘                      │
 │                                                                  │
@@ -417,11 +417,11 @@ Based on the existing PRD and product design:
 |----------|-----------|
 | **Liquity's Trove model** | Simplest battle-tested CDP system. 35+ successful forks. GPL v3 licensed. |
 | **Firefish's BTC escrow** | Production-proven non-custodial BTC custody. MiCA compliant. No wrapping needed. |
-| **Base L2** | Already in BRIXL's stack. Low gas. EVM composable. Growing ecosystem. |
+| **Ethereum L1** | Maximum security guarantees. Deepest liquidity. Most composable EVM chain. Post-Dencun gas costs are viable. |
 | **USDC (not minting stablecoin)** | Avoids stablecoin bootstrapping problem. Immediate liquidity. Regulatory clarity. |
 | **Stability Pool** | Decentralized liquidation absorption. Lenders earn yield. No centralized liquidator needed. |
 | **No governance token (v1)** | Reduces complexity. Avoids securities concerns. Can add later if needed. |
-| **Chainlink + Pyth oracles** | Industry standard. Redundant. Both available on Base. |
+| **Chainlink + Pyth oracles** | Industry standard. Redundant. Both native on Ethereum. |
 
 ### 5.3 Simplification Decisions
 
@@ -432,7 +432,7 @@ Things we're **intentionally NOT doing** in v1:
 3. **No DLCs** — Too early, limited tooling
 4. **No Babylon staking** — Keep collateral idle for now, add yield later
 5. **No governance** — Immutable parameters, upgradeable via proxy only for critical fixes
-6. **No cross-chain** — Base only for v1
+6. **No cross-chain** — Ethereum L1 only for v1
 7. **No rehypothecation** — Collateral is locked, period
 
 ---
@@ -543,20 +543,20 @@ If liquidation occurs:
 
 ### 6.5 Bitcoin Escrow Verification
 
-The bridge between Bitcoin L1 and Base L2:
+The bridge between Bitcoin L1 and Ethereum L1:
 
 **Option A: Relayer + Committee (Simplest, v1)**
 ```
 1. Borrower locks BTC in 3-of-3 multisig on Bitcoin
 2. BRIXL Relayer monitors Bitcoin for escrow transactions
-3. Relayer submits proof (txid, amount, escrow address) to Base
+3. Relayer submits proof (txid, amount, escrow address) to Ethereum
 4. Committee of 3-5 signers validates the proof
 5. BrixlVault accepts the proof and activates the loan
 ```
 
 **Option B: Bitcoin Light Client (More decentralized, v2)**
 ```
-1. Deploy Bitcoin SPV light client on Base
+1. Deploy Bitcoin SPV light client on Ethereum
 2. Submit Bitcoin block headers to verify escrow TX inclusion
 3. Merkle proof validates the specific escrow transaction
 4. Fully trustless verification, no committee needed
@@ -576,7 +576,7 @@ The bridge between Bitcoin L1 and Base L2:
 
 ```solidity
 contract BrixlPriceFeed {
-    // Primary: Chainlink BTC/USD on Base
+    // Primary: Chainlink BTC/USD on Ethereum
     AggregatorV3Interface public chainlinkFeed;
 
     // Fallback: Pyth Network BTC/USD
@@ -632,12 +632,12 @@ contract BrixlPriceFeed {
 **Bitcoin Layer:**
 6. Escrow address generation (PSBT construction)
 7. Relayer service for monitoring Bitcoin escrow TXs
-8. Basic committee verification (3-of-5 multisig on Base)
+8. Basic committee verification (3-of-5 multisig on Ethereum)
 
 **Testing:**
 9. Unit tests for all contracts (Hardhat/Foundry)
-10. Integration tests with forked Base
-11. Testnet deployment (Base Sepolia)
+10. Integration tests with forked Ethereum
+11. Testnet deployment (Sepolia)
 
 ### Phase 2: Production Hardening (Weeks 7-10)
 
@@ -645,11 +645,11 @@ contract BrixlPriceFeed {
 13. Bug bounty program (Immunefi)
 14. Frontend integration (connect to existing Next.js app)
 15. KYC integration at application layer (not protocol layer)
-16. Mainnet deployment (Base)
+16. Mainnet deployment (Ethereum)
 
 ### Phase 3: Decentralization & Yield (Weeks 11-16)
 
-17. Bitcoin SPV light client on Base (replace committee)
+17. Bitcoin SPV light client on Ethereum (replace committee)
 18. Babylon staking integration for idle collateral
 19. Additional collateral types (ETH, stETH)
 20. Governance framework (if needed)
@@ -662,10 +662,10 @@ contract BrixlPriceFeed {
 
 | # | Question | Options | Recommendation |
 |---|----------|---------|----------------|
-| 1 | **How to verify BTC escrow on Base?** | Relayer + committee / SPV light client / tBTC threshold | Start with relayer + committee (simplest) |
+| 1 | **How to verify BTC escrow on Ethereum?** | Relayer + committee / SPV light client / tBTC threshold | Start with relayer + committee (simplest) |
 | 2 | **Mint stablecoin or use USDC?** | Mint BRIXL-USD / Use USDC from pool | Use USDC (avoids peg risk, regulatory burden) |
 | 3 | **Who provides liquidity?** | Protocol treasury / Public pool / P2P matching | Public USDC pool (Stability Pool model) |
-| 4 | **How to handle BTC price feed cross-chain?** | Chainlink on Base / Bitcoin oracle + relay | Chainlink on Base (already there) |
+| 4 | **How to handle BTC price feed?** | Chainlink on Ethereum / Bitcoin oracle + relay | Chainlink on Ethereum (native, most reliable) |
 | 5 | **Governance or immutable?** | Immutable / Upgradeable proxy / DAO | Upgradeable proxy with timelock (compromise) |
 | 6 | **KYC at protocol or app level?** | On-chain KYC gate / Off-chain app layer | App layer (protocol stays permissionless) |
 | 7 | **Interest model?** | Fixed per tier / Utilization-based / Algorithmic | Fixed per tier (simpler, predictable) |
@@ -678,7 +678,7 @@ contract BrixlPriceFeed {
 | Oracle manipulation (Chainlink) | Medium | Dual oracle (Chainlink + Pyth), staleness checks, TWAP |
 | Smart contract bugs | High | Multiple audits, formal verification, bug bounty |
 | Bitcoin script limitations | Medium | Use well-tested PSBT patterns (Firefish-proven) |
-| Bridge risk (BTC ↔ Base) | High | No actual bridge — BTC stays on Bitcoin, only proof crosses |
+| Bridge risk (BTC ↔ Ethereum) | High | No actual bridge — BTC stays on Bitcoin, only proof crosses |
 | Liquidity bootstrapping | Medium | Seed pool from protocol treasury, offer competitive APY |
 | Regulatory risk (lending) | Medium | KYC at app layer, MiCA compliance, legal review |
 
@@ -708,16 +708,17 @@ Four distinct paths were evaluated for BRIXL's implementation. The recommended p
 
 | Path | Approach | Speed | Decentralization | Simplicity | Chosen? |
 |------|----------|-------|-------------------|------------|---------|
-| **A. EVM on Base + BTC Escrow** | Liquity-inspired contracts on Base L2, Firefish-inspired BTC custody on Bitcoin L1 | Fast | Medium (v1) → High (v2) | High | **YES** |
+| **A. EVM on Ethereum L1 + BTC Escrow** | Liquity-inspired contracts on Ethereum, Firefish-inspired BTC custody on Bitcoin L1 | Fast | Medium (v1) → High (v2) | High | **YES** |
 | **B. Bitcoin-Native (DLCs)** | P2P lending via Discreet Log Contracts, each loan is a 2-of-2 multisig with oracle | Slow | Very High | Medium | No (v2/v3) |
 | **C. Stacks + Clarity** | Build on Stacks using sBTC, Clarity smart contracts | Medium | High | Medium | No |
 | **D. Babylon LST Wrapper** | Liquid staking token on top of Babylon (like Lombard's LBTC) | Fast | Medium | High | No (staking-only, not lending) |
 
 **Why Path A wins:**
-- Base L2 has the most mature EVM tooling — Liquity can be forked in days
+- Ethereum L1 has the strongest security guarantees and deepest liquidity — Liquity itself runs on Ethereum
 - BTC escrow on Bitcoin L1 gives genuine non-custodial custody
-- Already aligned with BRIXL's existing tech stack (Next.js + Base + Solidity)
+- Already aligned with BRIXL's existing tech stack (Next.js + Solidity)
 - The "proof crosses, not BTC" bridge model avoids bridge risk
+- No L2 dependency — no sequencer risk, no additional trust assumptions
 - Path B (DLCs) and C (Stacks) are fallback options if Path A proves insufficient
 
 ### 8.5 Additional Protocols Studied
@@ -733,7 +734,7 @@ Four distinct paths were evaluated for BRIXL's implementation. The recommended p
 
 ### 8.6 DLC vs. EVM: Full Comparison
 
-| Dimension | DLC (Bitcoin-Native) | EVM (Base L2) |
+| Dimension | DLC (Bitcoin-Native) | EVM (Ethereum L1) |
 |-----------|---------------------|---------------|
 | **Custody** | Non-custodial, user retains keys | Depends on bridge/wrapping model |
 | **Privacy** | Only final settlement visible on-chain | Full contract state public |
