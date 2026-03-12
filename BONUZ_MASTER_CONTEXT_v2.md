@@ -54,15 +54,16 @@ Use this context as default truth unless the user explicitly overrides something
 - High throughput / low fee rollups, sidechains
 
 **Middleware Services**
-- Biconomy (paymasters, bundlers, smart accounts), Web3Auth (MPC key management, social login), Alchemy (node infra), Zerion (portfolio APIs)
-- Handles gas sponsorship, key management, bundling
+- Web3Auth (MPC key management, social login), Alchemy (node infra), Zerion (portfolio APIs)
+- bonuz Gas Tank (EOA payment wallet for sponsored gas on core actions)
+- Handles gas sponsorship, key management
 
 **bonuz Human Layer (Protocol Suite)**
 - Chain-agnostic SDK surface
 - bonuz ID Protocol (identity + permissions + attestations + graph)
 - bonuz Engagement Protocol (DNFT) (stateful passes/vouchers/memberships/tickets + redemption)
 - Identity abstraction (simple login; self-custodial wallets behind the scenes)
-- Account abstraction (smart accounts + paymasters; sponsored gas for selected actions)
+- Gas sponsorship via bonuz gas tank (EOA payment wallet covers gas for core engagement actions)
 - Quests / ticketing / loyalty / access / IRL activations
 
 **Application / Brand Layer**
@@ -80,7 +81,7 @@ Use this context as default truth unless the user explicitly overrides something
 Additionally: **SDK + login integrations** are a growth lever — every integration contributes users, identity touchpoints, and graph growth.
 
 **Reusable key sentence:**
-> "bonuz makes blockchains usable for real people and brands: 1-click login, self-custody, and programmable on-chain engagement via bonuz ID Protocol and bonuz Engagement Protocol."
+> "bonuz makes blockchains usable for real people and brands: 1-click login, self-custody, gas-sponsored core actions, and programmable on-chain engagement via bonuz ID Protocol and bonuz Engagement Protocol."
 
 ---
 
@@ -153,14 +154,13 @@ Additionally: **SDK + login integrations** are a growth lever — every integrat
 - Apps/brands can only read/write what's allowed
 - Events: HandleAdded, HandleVisibilityChanged, Attested, PermissionGranted/Revoked
 
-**Deployed contracts:**
+**Deployed contract:**
 
 | Chain | Address |
 |-------|---------|
 | Base (8453) | `0x9220070245b67130977FdF32acA4acdF6aD163cC` |
-| Polygon (137) | `0x178C18Cc348C1b6eBc76d91A61E2D8f840227d28` |
-| Arbitrum Nova (42170) | `0x3920F2C479D3C805EB89F2fdC6069dda58f4A734` |
-| Core DAO (1116) | `0x9220070245b67130977FdF32acA4acdF6aD163cC` |
+
+> **Note:** Polygon (137), Arbitrum Nova (42170), and Core DAO (1116) deployments have been **sunsetted**. Base is the sole active chain for bonuz ID Protocol.
 
 **Subgraph:** Goldsky-indexed on Base mainnet for fast reads.
 
@@ -213,7 +213,8 @@ redeemDate, expiryDate, points, metadataJson
 |-------|----------|---------|
 | Base (8453) | BonuzTokens | `0xe6461B0C86bF85023a5f359BAdF7012d2ef5ad7e` |
 | Base (8453) | BonuzDynamicNft | `0x39056372Eb93F4565d34C693A4A2Ea0D4F7187e5` |
-| Polygon (137) | BonuzTokens | `0x2A945B46EE2c6B8BAC319514d5EcdEdf2CBB607b` |
+
+> **Note:** Polygon (137) BonuzTokens deployment has been **sunsetted**. Base is the sole active chain for bonuz Engagement Protocol.
 
 **Redemption flow:**
 1. User scans QR / taps NFC at venue or online
@@ -226,23 +227,37 @@ redeemDate, expiryDate, points, metadataJson
 - **Punch card:** Fixed max punches, increment on redemption, auto-mint voucher when complete
 - Both managed by authorized redeemers (user-based, not partner-based authorization)
 
-### 3.3 Account Abstraction & Middleware (Execution)
+### 3.3 Gas Sponsorship & Middleware (Execution)
 
-- Uses EOAs and ERC-4337 smart accounts; 7702-ready by design
-- Biconomy v4 for smart account creation, paymasters, and bundlers
+- Uses **EOA wallets** — no smart accounts / account abstraction in production
+- **Biconomy has been sunsetted** — not in use
 - Web3Auth (Sapphire network) for MPC key management — private key never stored whole
-- Paymasters & bundlers sponsored by bonuz/partners cover gas for core actions:
-  - Creating/updating Bonuz ID
-  - Claiming/redeeming DNFTs
-  - Quest steps, check-ins, ticket scans
-- Session keys for repeated micro actions (event check-ins)
+- **Gas Tank (Payment Wallet):** A dedicated bonuz-operated EOA wallet that sponsors gas fees for core user actions
+- This is a simple pattern: bonuz maintains a funded EOA that pays transaction gas on behalf of users
+
+**Gas-sponsored actions (users pay nothing):**
+- Creating/updating Bonuz ID (social ID)
+- All dynamic NFT actions: redeeming, vouchers, membership actions, loyalty operations
+- Quest steps, check-ins, ticket scans
+- Any core engagement protocol interaction
+
+**Users DO pay gas for:**
+- Sending/transferring dNFTs out of their wallet
+- General wallet operations (swaps, sends, etc.)
+
+**EIP-7702 (Planned — next 6 months):**
+- Will enable EOA wallets to execute smart contract logic natively
+- Planned as the next evolution of the gas sponsorship and wallet capability model
+- Additional AI features for EOAs and relevant ERCs under exploration
 
 **Gas wording (IMPORTANT):**
 - The app is NOT "fully gasless"
-- Users experience "gasless" flows for selected ecosystem actions because gas is sponsored
-- ✅ "gas sponsored on bonuz core actions"
-- ✅ "feels gasless for users on key actions"
+- Users experience "gasless" flows for bonuz core actions because gas is sponsored via the bonuz gas tank
+- ✅ "gas sponsored on bonuz core actions via payment wallet"
+- ✅ "feels gasless for users on key engagement actions"
+- ✅ "bonuz covers gas for identity and engagement actions"
 - ❌ "wallet is gasless" / "no gas ever"
+- ❌ "account abstraction" / "smart accounts" / "paymasters" (these are not in use)
 
 ---
 
@@ -261,7 +276,6 @@ redeemDate, expiryDate, points, metadataJson
 - **Expo Router** (file-based routing with route groups)
 - **Zustand 5.0.10** for state management (selector hooks pattern — NEVER destructure from `useXStore()`)
 - **Viem 2.38.3 + Wagmi 2.19.5** for blockchain interaction
-- **Biconomy Account SDK 4.5.7** for smart accounts (ERC-4337)
 - **Web3Auth React Native SDK 8.1.0** for social login + MPC keys
 - **WalletConnect 2.23 + ReOwn AppKit 2.0.1** for dApp connections
 - **Apollo Client 4.1.3** for GraphQL (Social ID subgraphs)
@@ -286,8 +300,8 @@ redeemDate, expiryDate, points, metadataJson
 | `(common)` | Notifications |
 
 **Key features:**
-- **Onboarding:** email/social login (Google, Apple) → self-custodial account via Web3Auth MPC + Biconomy smart accounts
-- **Wallet types:** Main EVM (Web3Auth derived), Smart Wallet (Biconomy AA with gasless), Seed Phrase (HD derivation per chain), Connected (WalletConnect), Watch-only
+- **Onboarding:** email/social login (Google, Apple) → self-custodial EOA account via Web3Auth MPC
+- **Wallet types:** Main EVM (Web3Auth derived), Seed Phrase (HD derivation per chain), Connected (WalletConnect), Watch-only
 - **44+ supported chains** including Ethereum, Polygon, BSC, Base, Arbitrum, Solana, Bitcoin, Avalanche, Optimism, Linea, Abstract, ApeChain, Berachain, Blast, Celo, Degen, Fantom, Gnosis, Lens, Mantle, Monad, Scroll, Sonic, Unichain, World Chain, zkSync, Zora, MegaETH, and more
 - **Wallet ops:** hold, send, receive, swap (multi-chain via LI.FI, 1inch), buy/sell via Mercuryo fiat on-ramp
 - **Built-in dApp browser** with WalletConnect session management
@@ -481,9 +495,9 @@ Built by Bonuz Technology DMCC using bonuz protocols + SDK. For major partners: 
 - Dashboard connection: which partner account to link
 
 **What stays shared:**
-- bonuz Human Layer protocols (identity, engagement, AA)
+- bonuz Human Layer protocols (identity, engagement)
 - Smart contract infrastructure
-- Web3Auth + Biconomy middleware
+- Web3Auth middleware + gas tank sponsorship
 - RPC management with circuit breakers
 - Core wallet functionality
 
@@ -528,7 +542,7 @@ For restaurants, shops, hotels, clubs, gyms, venues.
 - React components + hooks for Bonuz ID integration
 - Components: `<BonuzSocialId>`, `<SignIn>`, `<ConnectButton>`, `<UserDetails>`, `<CreateSocialId>`
 - Hook: `useSocialId()` for programmatic access
-- Dependencies: Web3Auth (no-modal), Biconomy v4, Wagmi 2, Viem 2, TanStack React Query
+- Dependencies: Web3Auth (no-modal), Wagmi 2, Viem 2, TanStack React Query
 - Requires WagmiProvider + QueryClientProvider wrapper
 
 ```tsx
@@ -607,7 +621,7 @@ To create the fastest possible white-label (Tier 0):
 3. Modify tab config to hide wallet tab
 4. Change theme in `store/theme.ts`
 5. Update `app.json` (name, bundle ID, icons)
-6. Configure Web3Auth client ID + Biconomy config
+6. Configure Web3Auth client ID
 7. Test → Deploy
 
 ### Key Patterns to Follow
@@ -651,7 +665,6 @@ services/
 
 | Partner | Role |
 |---------|------|
-| **Biconomy** | Account abstraction (ERC-4337), paymasters, bundlers, smart accounts |
 | **Web3Auth** | MPC key management, social login (Google, Apple, Email), Sapphire network |
 | **Alchemy** | Node infrastructure, RPC endpoints |
 | **Zerion** | Portfolio management APIs |
@@ -687,7 +700,7 @@ services/
 | **SOC 2 Type II** | Operational security certification |
 
 ### Ecosystem Backers
-Google Cloud, NEAR, Biconomy, DMCC Crypto, Cypher Capital, Crypto Oasis
+Google Cloud, NEAR, DMCC Crypto, Cypher Capital, Crypto Oasis
 
 ---
 
@@ -741,7 +754,7 @@ bonuz-app-v2/
 - **Zustand** for state management (all apps)
 - **TanStack React Query** for server state (all apps)
 - **Web3Auth** for authentication (all apps)
-- **Biconomy** for account abstraction (mobile + dashboard + bonuz-id)
+- **Gas Tank (EOA payment wallet)** for gas sponsorship on core actions
 - **TypeScript strict mode** everywhere
 - **Tailwind CSS** for styling (all apps, NativeWind for mobile)
 - **Primary chain:** Base (8453)
@@ -761,8 +774,9 @@ bonuz-app-v2/
 
 | Capability | Status | Notes |
 |---|---|---|
-| bonuz ID Protocol | ✅ | 4 chains, Hacken 10/10 |
-| bonuz Engagement Protocol (DNFT) | ✅ | Base + Polygon, state machine working |
+| bonuz ID Protocol | ✅ | Base only (Polygon/Arbitrum/Core sunsetted), Hacken 10/10 |
+| bonuz Engagement Protocol (DNFT) | ✅ | Base only (Polygon sunsetted), state machine working |
+| Gas sponsorship (gas tank) | ✅ | EOA payment wallet covers gas for core engagement actions |
 | Consumer Wallet | ✅ | App Store, 44+ chains, 24 languages |
 | Brand Dashboard | ✅ | No-code campaigns, RBAC, analytics |
 | bonuz.id Web App | ✅ | Profile pages, biolinks, social links |
@@ -773,6 +787,8 @@ bonuz-app-v2/
 | Reputation system | 🟡 | Attestations exist. No composable reputation score yet |
 | Memberships as a system | 🟡 | DNFT type exists. No subscription billing integration |
 | AI features | 🟡 | Points mining + leaderboard. No AI agent integration |
+| EIP-7702 | 🔮 | Planned within 6 months — EOA smart contract execution |
+| AI for EOAs / ERCs | 🔮 | Exploring AI features for EOA wallets + relevant ERC standards |
 | NavBar / Web SDK | 🔮 | Design phase |
 | Embeddable widgets | 🔮 | APIs available, no pre-built embeds |
 
@@ -780,6 +796,8 @@ bonuz-app-v2/
 
 | Product | Description | Estimated Build Time |
 |---|---|---|
+| **EIP-7702 integration** | Enable EOA wallets to execute smart contract logic natively; next evolution of gas sponsorship and wallet capabilities | ~6 months |
+| **AI features for EOAs** | AI-powered features for EOA wallets + exploration of relevant ERCs that enhance wallet intelligence | Ongoing |
 | **White-label Tier 0 template** | Standardized barebone scanner starting point | 3-5 days |
 | **Embeddable profile widget** | Lightweight web component for bonuz ID profiles | 3-5 days |
 | **NavBar / Web SDK** | Embeddable bonuz toolbar for third-party web apps | 5-10 days |
@@ -834,8 +852,9 @@ When discussing revenue: emphasize **protocol + SaaS + enterprise**, not just sw
    - Apps/wallet/dashboard/white-label/SDK → Bonuz Technology DMCC, Dubai
 
 3. **Gas & UX wording:**
-   - ✅ "gas sponsored on bonuz core actions" / "feels gasless for users on key actions"
+   - ✅ "gas sponsored on bonuz core actions via payment wallet" / "feels gasless for users on key engagement actions"
    - ❌ "wallet is gasless" / "no gas ever"
+   - ❌ "account abstraction" / "smart accounts" / "paymasters" (sunsetted)
 
 4. **Name styling:**
    - "bonuz" lowercase in general copy
@@ -843,7 +862,7 @@ When discussing revenue: emphasize **protocol + SaaS + enterprise**, not just sw
    - Use $BONUZ for the token (future)
 
 5. **Audience switching:**
-   - **Crypto/investors:** ERC-4337, paymasters, protocols, network effects, SDK integrations
+   - **Crypto/investors:** EOA-native design, gas sponsorship, EIP-7702 roadmap, protocols, network effects, SDK integrations
    - **Brands/users:** Outcomes — "Scan QR → get pass in your wallet", "Launch quests in minutes"
    - **Enterprise/government:** Infrastructure — "programmable digital identity and participation systems"
    - **Developers:** SDKs, APIs, contract interfaces — "npm install @bonuz/sdk, call useSocialId()"
@@ -886,7 +905,7 @@ Use/remix when helpful:
 
 - "bonuz is the Human Layer — infrastructure for human outcomes."
 - "Protocols by Bonuz Inc. Apps, SDK and distribution by Bonuz Technology."
-- "bonuz ID Protocol for identity, bonuz Engagement Protocol (DNFT) for engagement assets, account abstraction for execution."
+- "bonuz ID Protocol for identity, bonuz Engagement Protocol (DNFT) for engagement assets, gas tank sponsorship for frictionless execution."
 - "bonuz: Lifestyle Wallet — passes, rewards, memberships and identity in one place."
 - "Brands issue DNFT passes and vouchers; users keep them in their own wallet."
 - "Every campaign grows the shared ID graph — a compounding network effect."
