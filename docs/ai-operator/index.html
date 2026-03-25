@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Operator — Your Always-On AI Coworker</title>
+  <style>
+    :root {
+      --bg: #07080f;
+      --surface: #0e1118;
+      --surface2: #151822;
+      --border: rgba(255,255,255,0.07);
+      --accent: #5b8dee;
+      --accent2: #a78bfa;
+      --accent3: #34d399;
+      --text: #e8eaf0;
+      --muted: #7a8099;
+      --gradient: linear-gradient(135deg, #5b8dee 0%, #a78bfa 100%);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(7,8,15,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 60px;
+    }
+    .nav-logo {
+      font-size: 1rem; font-weight: 700; letter-spacing: -0.02em;
+      background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 6rem 1.5rem 4rem;
+      overflow: hidden;
+    }
+    .hero-glow {
+      position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+      width: 900px; height: 600px;
+      background: radial-gradient(ellipse at 50% 50%, rgba(91,141,238,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(91,141,238,0.12); border: 1px solid rgba(91,141,238,0.3);
+      border-radius: 999px; padding: 0.3rem 0.9rem;
+      font-size: 0.8rem; font-weight: 600; color: var(--accent);
+      margin-bottom: 2rem; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 5rem);
+      font-weight: 800; line-height: 1.1;
+      letter-spacing: -0.03em;
+      max-width: 800px;
+    }
+    .hero h1 span {
+      background: var(--gradient);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: var(--muted); max-width: 600px;
+    }
+    .hero-cta {
+      margin-top: 2.5rem;
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    }
+    .btn {
+      display: inline-block; padding: 0.75rem 1.75rem;
+      border-radius: 10px; font-weight: 600; font-size: 0.95rem;
+      text-decoration: none; transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--gradient); color: #fff;
+    }
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-secondary {
+      background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
+
+    /* scroll indicator */
+    .scroll-hint {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+      color: var(--muted); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .scroll-hint .arrow {
+      width: 1px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: dropArrow 1.8s ease-in-out infinite;
+    }
+    @keyframes dropArrow {
+      0%,100% { opacity: 0.2; transform: scaleY(0.6); transform-origin: top; }
+      50% { opacity: 1; transform: scaleY(1); }
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: 6rem 1.5rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.75rem);
+      font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .section-sub {
+      color: var(--muted); font-size: 1.05rem; max-width: 560px;
+    }
+
+    /* ── CONCEPT STRIP ── */
+    .concept-strip {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 1.5rem;
+    }
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .concept-item { display: flex; align-items: flex-start; gap: 1rem; }
+    .concept-icon {
+      flex-shrink: 0;
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(91,141,238,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem;
+    }
+    .concept-item h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .concept-item p { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── FLOW DIAGRAM ── */
+    .flow-section { background: var(--bg); }
+    .flow-diagram {
+      margin-top: 3rem;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0;
+    }
+    .flow-node {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      min-width: 160px;
+      text-align: center;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+    .flow-node:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .flow-node .fn-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+    .flow-node .fn-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .flow-node .fn-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+    .flow-node.highlight { border-color: rgba(91,141,238,0.5); background: rgba(91,141,238,0.06); }
+    .flow-arrow {
+      font-size: 1.5rem; color: var(--muted);
+      padding: 0 0.75rem;
+      display: flex; align-items: center;
+    }
+
+    /* ── COMPONENTS ── */
+    .components-section { background: var(--surface); }
+    .comp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .comp-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      transition: border-color 0.25s, transform 0.25s;
+      position: relative; overflow: hidden;
+    }
+    .comp-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--gradient);
+      opacity: 0; transition: opacity 0.25s;
+    }
+    .comp-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-3px); }
+    .comp-card:hover::before { opacity: 1; }
+    .comp-card:nth-child(2)::before { background: linear-gradient(135deg, #a78bfa, #f472b6); }
+    .comp-card:nth-child(3)::before { background: linear-gradient(135deg, #34d399, #5b8dee); }
+    .comp-card:nth-child(4)::before { background: linear-gradient(135deg, #fb923c, #f472b6); }
+    .comp-number {
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 0.75rem;
+    }
+    .comp-icon { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
+    .comp-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .comp-card p { font-size: 0.875rem; color: var(--muted); margin-bottom: 1rem; }
+    .comp-tag {
+      display: inline-block;
+      background: rgba(91,141,238,0.1); border: 1px solid rgba(91,141,238,0.2);
+      color: var(--accent); border-radius: 6px;
+      padding: 0.2rem 0.6rem; font-size: 0.72rem; font-weight: 600;
+      margin-right: 0.35rem; margin-bottom: 0.35rem;
+    }
+
+    /* ── STEPS ── */
+    .steps-section { background: var(--bg); }
+    .steps-list {
+      margin-top: 3rem;
+      display: flex; flex-direction: column; gap: 0;
+      max-width: 800px;
+    }
+    .step {
+      display: flex; gap: 2rem;
+      padding-bottom: 3rem;
+      position: relative;
+    }
+    .step:not(:last-child)::before {
+      content: '';
+      position: absolute; left: 20px; top: 44px; bottom: 0; width: 1px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      opacity: 0.3;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(91,141,238,0.15); border: 1px solid rgba(91,141,238,0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 800; color: var(--accent);
+    }
+    .step-body h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .step-body p { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.75rem; }
+    .code-block {
+      background: #0b0d14;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 0.82rem;
+      color: #b4c0e0;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+    .code-block .comment { color: #4a5270; }
+    .code-block .cmd { color: #5b8dee; }
+    .code-block .str { color: #34d399; }
+    .code-block .kw { color: #a78bfa; }
+
+    /* ── TIPS ── */
+    .tips-section { background: var(--surface); }
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem; margin-top: 2.5rem;
+    }
+    .tip-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+    .tip-card .tip-icon { font-size: 1.5rem; margin-bottom: 0.75rem; display: block; }
+    .tip-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .tip-card p { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── VISION ── */
+    .vision-section {
+      background: var(--bg);
+      text-align: center;
+    }
+    .vision-quote {
+      max-width: 680px; margin: 2.5rem auto 0;
+      font-size: clamp(1.15rem, 2.5vw, 1.5rem);
+      color: var(--muted); font-style: italic; line-height: 1.6;
+    }
+    .vision-quote strong { color: var(--text); font-style: normal; }
+    .vision-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 3rem; max-width: 900px; margin-left: auto; margin-right: auto;
+    }
+    .vision-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.5rem;
+      text-align: center;
+    }
+    .vision-card .vc-icon { font-size: 2rem; margin-bottom: 0.75rem; display: block; }
+    .vision-card p { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: var(--muted); font-size: 0.85rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .flow-arrow { display: none; }
+      .flow-node { min-width: 140px; }
+      .step { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">AI Operator</div>
+  <ul class="nav-links">
+    <li><a href="#concept">Concept</a></li>
+    <li><a href="#components">Components</a></li>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#tips">Tips</a></li>
+    <li><a href="#vision">Vision</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge">&#9889; The Future of Working with AI</div>
+  <h1>Your Mac is now an<br /><span>always-on AI coworker.</span></h1>
+  <p class="hero-sub">One Mac Mini. One voice command. A full AI operator that reads your screen, understands your context, and gets things done — while you sleep.</p>
+  <div class="hero-cta">
+    <a href="#setup" class="btn btn-primary">Get Started</a>
+    <a href="#concept" class="btn btn-secondary">How it works</a>
+  </div>
+  <div class="scroll-hint">
+    <span>scroll</span>
+    <div class="arrow"></div>
+  </div>
+</section>
+
+<!-- CONCEPT STRIP -->
+<div class="concept-strip" id="concept">
+  <div class="concept-grid">
+    <div class="concept-item">
+      <div class="concept-icon">&#128172;</div>
+      <div>
+        <h3>Speak naturally</h3>
+        <p>Talk to your Mac like you talk to a colleague. No typing, no clicking.</p>
+      </div>
+    </div>
+    <div class="concept-item">
+      <div class="concept-icon">&#128065;</div>
+      <div>
+        <h3>AI sees your screen</h3>
+        <p>Claude Computer Use reads what's on screen and takes real actions.</p>
+      </div>
+    </div>
+    <div class="concept-item">
+      <div class="concept-icon">&#9889;</div>
+      <div>
+        <h3>Instant dispatch</h3>
+        <p>Tasks are routed and executed automatically — no middleware needed.</p>
+      </div>
+    </div>
+    <div class="concept-item">
+      <div class="concept-icon">&#127774;</div>
+      <div>
+        <h3>Runs 24 / 7</h3>
+        <p>Your AI coworker never sleeps, never forgets, never gets tired.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FLOW DIAGRAM -->
+<section class="flow-section">
+  <div class="container">
+    <div class="section-label">Architecture</div>
+    <h2 class="section-title">How the pieces fit together</h2>
+    <p class="section-sub">Four layers stack on top of each other to form a complete, autonomous AI operator living on one machine.</p>
+
+    <div class="flow-diagram">
+      <div class="flow-node">
+        <span class="fn-icon">&#127908;</span>
+        <div class="fn-title">Your Voice</div>
+        <div class="fn-desc">You speak a command or question</div>
+      </div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-node">
+        <span class="fn-icon">&#128263;</span>
+        <div class="fn-title">Whisper STT</div>
+        <div class="fn-desc">Speech converted to text instantly</div>
+      </div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-node highlight">
+        <span class="fn-icon">&#9889;</span>
+        <div class="fn-title">Dispatch</div>
+        <div class="fn-desc">Routes your task to the right agent</div>
+      </div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-node">
+        <span class="fn-icon">&#129302;</span>
+        <div class="fn-title">Claude AI</div>
+        <div class="fn-desc">Reasons, plans and decides actions</div>
+      </div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-node">
+        <span class="fn-icon">&#128187;</span>
+        <div class="fn-title">Computer Use</div>
+        <div class="fn-desc">Takes real actions on your Mac</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPONENTS -->
+<section class="components-section" id="components">
+  <div class="container">
+    <div class="section-label">Components</div>
+    <h2 class="section-title">The four building blocks</h2>
+    <p class="section-sub">Each piece is open-source, free, and runs entirely on your hardware. No cloud required beyond the Claude API.</p>
+
+    <div class="comp-grid">
+
+      <div class="comp-card">
+        <div class="comp-number">01 &mdash; Input</div>
+        <span class="comp-icon">&#128263;</span>
+        <h3>faster-whisper (Voice Input)</h3>
+        <p>A lightning-fast, locally-running speech-to-text engine. You speak; it transcribes immediately on your Mac with zero cloud latency. Based on OpenAI Whisper, optimised for Apple Silicon.</p>
+        <span class="comp-tag">Python</span>
+        <span class="comp-tag">Local</span>
+        <span class="comp-tag">Apple Silicon</span>
+        <span class="comp-tag">Real-time</span>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-number">02 &mdash; Routing</div>
+        <span class="comp-icon">&#9889;</span>
+        <h3>OpenClaw / Dispatch</h3>
+        <p>The central task router. When a transcribed command arrives it decides: is this a quick answer, a coding task, a browser action, or a file operation? It dispatches to the right specialised agent automatically.</p>
+        <span class="comp-tag">Node / Python</span>
+        <span class="comp-tag">Agent router</span>
+        <span class="comp-tag">Context-aware</span>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-number">03 &mdash; Intelligence</div>
+        <span class="comp-icon">&#129302;</span>
+        <h3>Claude (Anthropic)</h3>
+        <p>The brain. Claude receives the task with full context — what's on screen, what you said, what happened before — and produces a plan. It reasons step-by-step and can use tools: browser, terminal, files, APIs.</p>
+        <span class="comp-tag">Claude 3 / 4</span>
+        <span class="comp-tag">Tool use</span>
+        <span class="comp-tag">Long context</span>
+        <span class="comp-tag">Vision</span>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-number">04 &mdash; Action</div>
+        <span class="comp-icon">&#128187;</span>
+        <h3>Claude Computer Use</h3>
+        <p>Claude doesn't just talk — it acts. Computer Use lets Claude move the mouse, type text, take screenshots to verify results, open apps, and navigate the web — just like a human operator sitting at your desk.</p>
+        <span class="comp-tag">Screen capture</span>
+        <span class="comp-tag">Mouse &amp; keyboard</span>
+        <span class="comp-tag">Browser control</span>
+        <span class="comp-tag">File system</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SETUP STEPS -->
+<section class="steps-section" id="setup">
+  <div class="container">
+    <div class="section-label">Setup Guide</div>
+    <h2 class="section-title">Get running in one afternoon</h2>
+    <p class="section-sub">You need a Mac (M1 or later recommended), an Anthropic API key, and about 30 minutes.</p>
+
+    <div class="steps-list">
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Install core dependencies</h3>
+          <p>Make sure you have Python 3.11+, Homebrew, and Node.js installed on your Mac.</p>
+          <div class="code-block">
+<span class="comment"># Install Homebrew (if not already installed)</span>
+<span class="cmd">/bin/bash</span> -c <span class="str">"$(curl -fsSL https://brew.sh/install.sh)"</span>
+
+<span class="comment"># Install Python and Node</span>
+<span class="cmd">brew install</span> python@3.11 node
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Install faster-whisper for voice input</h3>
+          <p>This runs speech-to-text locally on your Mac. No data ever leaves your machine.</p>
+          <div class="code-block">
+<span class="cmd">pip install</span> faster-whisper pyaudio sounddevice numpy
+
+<span class="comment"># Test microphone access</span>
+<span class="cmd">python3</span> -c <span class="str">"import sounddevice; print(sounddevice.query_devices())"</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Set your Anthropic API key</h3>
+          <p>Get your key from <strong>console.anthropic.com</strong>, then add it to your shell environment.</p>
+          <div class="code-block">
+<span class="comment"># Add to ~/.zshrc or ~/.bashrc</span>
+<span class="kw">export</span> ANTHROPIC_API_KEY=<span class="str">"sk-ant-your-key-here"</span>
+
+<span class="comment"># Reload your shell</span>
+<span class="cmd">source</span> ~/.zshrc
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Clone and configure the AI Operator stack</h3>
+          <p>Pull the dispatch layer and configure which agents Claude can route tasks to.</p>
+          <div class="code-block">
+<span class="cmd">git clone</span> https://github.com/bonuz-market/superpowers032026
+<span class="cmd">cd</span> superpowers032026
+
+<span class="comment"># Install dependencies</span>
+<span class="cmd">pip install</span> -r requirements.txt
+
+<span class="comment"># Copy and edit config</span>
+<span class="cmd">cp</span> config.example.json config.json
+<span class="cmd">nano</span> config.json
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>Grant screen recording &amp; accessibility permissions</h3>
+          <p>For Claude Computer Use to see and control your screen, macOS needs explicit permission.</p>
+          <div class="code-block">
+<span class="comment"># Open System Settings &#8594; Privacy &amp; Security</span>
+<span class="comment"># Enable for your terminal app:</span>
+<span class="comment">#   &#10003; Screen Recording</span>
+<span class="comment">#   &#10003; Accessibility</span>
+<span class="comment">#   &#10003; Automation</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <h3>Start the operator</h3>
+          <p>Launch the main process. It will listen for your voice trigger word (default: <strong>"Hey Claude"</strong>), then wake up and take action.</p>
+          <div class="code-block">
+<span class="comment"># Start the AI operator</span>
+<span class="cmd">python3</span> operator.py --mode voice
+
+<span class="comment"># Or run as a background service</span>
+<span class="cmd">python3</span> operator.py --daemon
+
+<span class="comment"># View logs in real time</span>
+<span class="cmd">tail -f</span> ~/.ai-operator/logs/session.log
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">7</div>
+        <div class="step-body">
+          <h3>Try your first command</h3>
+          <p>Say the trigger word and give a natural instruction. The operator will transcribe, plan, and act.</p>
+          <div class="code-block">
+<span class="comment"># Example voice commands you can say:</span>
+<span class="str">"Hey Claude, open my email and summarise unread messages"</span>
+<span class="str">"Hey Claude, take a screenshot and describe what you see"</span>
+<span class="str">"Hey Claude, write a reply to the last Slack message"</span>
+<span class="str">"Hey Claude, check if our website is down and send me a report"</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- TIPS -->
+<section class="tips-section" id="tips">
+  <div class="container">
+    <div class="section-label">Pro Tips</div>
+    <h2 class="section-title">Make it work even better</h2>
+    <p class="section-sub">Small tweaks that make a big difference in day-to-day use.</p>
+    <div class="tips-grid">
+      <div class="tip-card">
+        <span class="tip-icon">&#128203;</span>
+        <h4>Give Claude a context file</h4>
+        <p>Create a <code>context.md</code> file with your name, projects, tools you use, and preferences. Claude reads it on every task.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">&#127760;</span>
+        <h4>Use a dedicated Mac Mini</h4>
+        <p>A Mac Mini M2 ($600) makes a perfect always-on AI server. It uses under 8W idle and never interrupts your main machine.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">&#128274;</span>
+        <h4>Limit Computer Use scope</h4>
+        <p>In config.json, restrict which apps Claude can control. This prevents accidents and keeps your data safe.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">&#128196;</span>
+        <h4>Log everything</h4>
+        <p>Enable full session logging. It's invaluable for reviewing what the AI did, debugging issues, and improving your prompts.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">&#127793;</span>
+        <h4>Start with small tasks</h4>
+        <p>Begin with low-risk operations: reading email, summarising documents, searching the web. Build trust before automating critical actions.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">&#128680;</span>
+        <h4>Set a confirmation mode</h4>
+        <p>For destructive actions (sending email, deleting files), configure Claude to always ask for verbal confirmation first.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISION -->
+<section class="vision-section" id="vision">
+  <div class="container">
+    <div class="section-label">Vision</div>
+    <h2 class="section-title">This is not a tool. This is a colleague.</h2>
+    <p class="vision-quote">
+      &ldquo;We are entering an era where <strong>AI does not assist work &mdash; AI is the worker.</strong> Your role shifts from doing tasks to <strong>directing intelligence.</strong> The person who learns to operate AI well today becomes <strong>ten people tomorrow.</strong>&rdquo;
+    </p>
+    <div class="vision-cards">
+      <div class="vision-card">
+        <span class="vc-icon">&#9889;</span>
+        <p>One person with an AI operator can run what used to take a team of five.</p>
+      </div>
+      <div class="vision-card">
+        <span class="vc-icon">&#127758;</span>
+        <p>Your Mac Mini becomes a remote worker that never sleeps and never asks for a raise.</p>
+      </div>
+      <div class="vision-card">
+        <span class="vc-icon">&#129504;</span>
+        <p>The bottleneck is no longer skill — it is <strong>clarity of thought</strong> and quality of instruction.</p>
+      </div>
+      <div class="vision-card">
+        <span class="vc-icon">&#128640;</span>
+        <p>This technology is available today, to anyone, for the cost of a cloud API call.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>Built with &#9829; using <a href="https://www.anthropic.com" target="_blank">Claude by Anthropic</a> &mdash; AI Operator Guide &mdash; superpowers032026</p>
+  <p style="margin-top:0.5rem; color: #3a4060;">This page itself was created by an AI. The future is already here.</p>
+</footer>
+
+</body>
+</html>
